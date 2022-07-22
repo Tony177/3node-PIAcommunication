@@ -1,0 +1,64 @@
+	ORG $8000
+N_MG       EQU     3
+N_CH       EQU     3
+
+* un totale di 9 caratteri
+
+MSG    	DC.B    1,1,2,1,2,2,3,3,4
+CNTB  	DC.B    0
+
+PIADB   EQU	$2006
+PIACB   EQU 	$2007
+
+        ORG $8200
+MAIN	MOVE.B #$00,PIACB
+	MOVE.B #$FF,PIADB
+	MOVE.B #%00100101,PIACB
+
+	MOVEA.L	#PIADB,A0
+        
+	MOVE.B	(A0),D0		*Lettura fittizia
+
+	MOVE.W SR,D0
+	ANDI.W #$D8FF,D0
+	MOVE.W D0,SR
+        
+	MOVEA.L #MSG,A1
+	MOVE.B CNTB,D1
+	MOVE.B (A1,D1),(A0)   *INVIO DATO        
+
+	ADDI.B #1,CNTB
+
+LOOP    JMP     LOOP    *ASPETTO INT
+
+
+        ORG $8500
+INT	MOVE.L	A0,-(A7)
+	MOVE.L	A1,-(A7)
+	MOVE.L	A2,-(A7)
+	MOVE.L	D0,-(A7)
+	MOVE.L	D1,-(A7)
+	MOVE.L	D2,-(A7)
+
+	MOVEA.L	#PIADB,A0
+	MOVE.B	(A0),D0  *LETTURA fittizia
+
+	MOVEA.L	#MSG,A1
+	MOVE.B	CNTB,D1
+	MOVE.B	(A1,D1),(A0)   *INVIO DATO
+	ADDI.B	#1,CNTB
+
+FINE	MOVE.L	(A7)+,D2
+	MOVE.L	(A7)+,D1
+	MOVE.L	(A7)+,D0
+	MOVE.L	(A7)+,A2
+	MOVE.L	(A7)+,A1
+	MOVE.L	(A7)+,A0
+	RTE 
+
+        END MAIN
+
+
+
+
+
